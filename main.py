@@ -11,7 +11,7 @@ logging.basicConfig(filename='btc-messages.log',
 
 
 def convert():
-    num_of_btc = input('Please enter the number of BTC:\n').lower().strip()
+    num_of_btc = input('Please enter the number of BTC:\n').strip()
     if is_valid_num(num_of_btc):
         btc_price = api_call()
         total_in_usd = btc_to_usd(num_of_btc, btc_price)
@@ -20,7 +20,7 @@ def convert():
         return return_value
     else:
         print(f'"{num_of_btc}" is an invalid number, please try again\n')
-        convert()
+        return None
 
 
 def is_valid_num(num):
@@ -28,7 +28,6 @@ def is_valid_num(num):
         test_num = float(num) > 0
         return test_num
     except Exception as e:
-        print(f'{e}\n')
         logging.error(e)
 
 
