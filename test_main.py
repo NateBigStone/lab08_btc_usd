@@ -8,24 +8,31 @@ import main
 class TestMain(TestCase):
 
     def setUp(self):
+        """Future use for common test setup"""
         return None
 
-    @patch('builtins.input')
     @patch('main.api_call')
-    def test_main(self, api_call, mock_input):
-        mock_input.side_effect = ['1']
-        api_call.return_value = 11463.3133
-        total = main.convert()
+    def test_main(self, mock_requests):
+        """Test main func"""
+        btc_price = 11463.3133
+        resp = {'time': {'updated': 'Oct 20, 2020 03:05:00 UTC',
+                                    'updatedISO': '2020-10-20T03:05:00+00:00',
+                                    'updateduk': 'Oct 20, 2020 at 04:05 BST'},
+                'disclaimer': 'This data was produced from the CoinDesk Bitcoin Price Index (USD). \
+                Non-USD currency data converted using hourly conversion rate from openexchangerates.org',
+                'bpi': {'USD': {'code': 'USD', 'rate': '11,722.7883', 'description': 'United States Dollar',
+                                'rate_float': btc_price}}}
+
+        mock_requests.side_effect = [resp]
+        total = main.convert(1)
         self.assertEqual('$11463.31', total)
 
-    @patch('builtins.input')
     @patch('builtins.print')
-    def test_main_user_input(self, mock_print, mock_input):
-        """Fun fact: 'inf' works, which I'm OK with"""
+    def test_main_user_input(self, mock_print):
+        """Test various inputs that should fail and print a message for the user"""
         user_inputs = ['hey', 'hello', '-1', '1/4', '.1.1', 'nan']
         for user_input in user_inputs:
-            mock_input.side_effect = [user_input]
-            main.convert()
+            main.convert(user_input)
             mock_print.assert_called_with(f'"{user_input}" is an invalid number, please try again\n')
 
 
