@@ -10,45 +10,66 @@ logging.basicConfig(filename='btc-messages.log',
                     level=log_level)
 
 
-def convert():
-    num_of_btc = input('Please enter the number of BTC:\n').strip()
-    if is_valid_num(num_of_btc):
-        btc_price = api_call()
-        total_in_usd = btc_to_usd(num_of_btc, btc_price)
-        return_value = print_total(total_in_usd)
-        print(return_value)
-        return return_value
-    else:
+def convert(num_of_btc):
+    if not is_valid_num(num_of_btc):
         print(f'"{num_of_btc}" is an invalid number, please try again\n')
         return None
+    resp = api_call()
+    btc_price = parse_resp(resp)
+    total_in_usd = btc_to_usd(num_of_btc, btc_price)
+    return_value = print_total(total_in_usd)
+    print(return_value)
+    return return_value
 
 
 def is_valid_num(num):
+    test_num = None
     try:
         test_num = float(num) > 0
-        return test_num
     except Exception as e:
         logging.error(e)
+    return test_num
 
 
 def api_call():
-    price = None
+    api_response = None
     try:
-        resp = requests.get(url).json()
-        price = float(resp['bpi']['USD']['rate_float'])
+        api_response = requests.get(url).json()
     except Exception as e:
         print(f'Error- {e}')
         logging.error(e)
-    return price
+    return api_response
+
+
+def parse_resp(resp):
+    parsed = None
+    try:
+        parsed = float(resp['bpi']['USD']['rate_float'])
+    except Exception as e:
+        print(f'Error- {e}')
+        logging.error(e)
+    return parsed
 
 
 def btc_to_usd(btc, price):
-    return float(btc) * price
+    calculation = None
+    try:
+        calculation = float(btc) * price
+    except Exception as e:
+        logging.error(e)
+        print(f'Error- {e}')
+    return calculation
 
 
 def print_total(total):
-    return f'${str(round(total, 2))}'
+    return_total = None
+    try:
+        return_total = f'${str(round(total, 2))}'
+    except Exception as e:
+        logging.error(e)
+    return return_total
 
 
 if __name__ == '__main__':
-    convert()
+    user_input = input('Please enter the number of BTC:\n').strip()
+    convert(user_input)
